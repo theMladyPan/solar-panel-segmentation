@@ -1,0 +1,7 @@
+{% macro nav_link(endpoint, label, active_page) %}
+<li class="nav-item">
+    <a href="{{ url_for(endpoint) }}" class="nav-link {% if active_page == endpoint %}active{% endif %} text-white">
+        {{ label }}
+    </a>
+</li>
+{% endmacro %}

@@ -1,0 +1,59 @@
+{% extends "base.j2" %}
+
+{% block main %}
+<div class="container">
+    <div class="hero text-white p-5">
+        <div class="container">
+            <h1 class="display-4">Manage your images</h1>
+            <p class="lead">
+                Upload images of solar panels for segmentation. Accepted formats are JPEG and PNG.
+            </p>
+        </div>
+    </div>
+    <!-- Upload Section -->
+    <hr class="my-4">
+
+    <div class="upload-section">
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">Choose image files:</label>
+                <input type="file" id="file" name="file" multiple class="form-control-file">
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Upload</button>
+        </form>
+    </div>
+
+    <!-- Uploaded Files -->
+    <hr class="my-4">
+
+    <div class="album py-5 bg-body-tertiary">
+        <div class="container">
+
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                {% for file in files %}
+                <div class="col">
+                    <div class="card shadow-sm">
+                        <img src="{{ url_for('uploaded_file', filename=file.filename) }}" class="card-img-top" alt="..."
+                            width="100%" height="225">
+
+                        <div class="card-body">
+                            <p class="card-text">{{ file.filename }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary">Replace</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary">Delete</button>
+                                </div>
+                                <small class="text-body-secondary">{{ file.size }}kB</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}

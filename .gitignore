@@ -3,3 +3,4 @@ crop/
 image_status*
 .history/
 venv/
+uploads/**
