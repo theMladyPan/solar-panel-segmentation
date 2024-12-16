@@ -85,7 +85,7 @@ def find_contours(original_image, thresh_image, min_area, max_area, aspect_ratio
                 cv2.drawContours(output, [approx], 0, (0, 255, 0), 2)
                 valid_contours.append(contour)
 
-    return [closed, output]
+    return [closed, output, len(valid_contours)]
 
 
 def download_images(image_path):
@@ -121,14 +121,18 @@ def download_images(image_path):
 def all_steps(image_path, blurks, atks, atoff, min_area, max_area, aspect_ratio_min, aspect_ratio_max, ksclose):
     blurred = blur_image(image_path, blurks)
     thresh = adaptive_threshold(blurred, atks, atoff)
-    closed, output = find_contours(blurred, thresh, min_area, max_area, aspect_ratio_min, aspect_ratio_max, ksclose)
-    return [blurred, thresh, closed, output]
+    closed, output, n_segments = find_contours(
+        blurred, thresh, min_area, max_area, aspect_ratio_min, aspect_ratio_max, ksclose
+    )
+    return [blurred, thresh, closed, output, n_segments]
 
 
 def process_steps(blurred, atks, atoff, min_area, max_area, aspect_ratio_min, aspect_ratio_max, ksclose):
     thresh = adaptive_threshold(blurred, atks, atoff)
-    closed, output = find_contours(blurred, thresh, min_area, max_area, aspect_ratio_min, aspect_ratio_max, ksclose)
-    return [blurred, thresh, closed, output]
+    closed, output, n_segments = find_contours(
+        blurred, thresh, min_area, max_area, aspect_ratio_min, aspect_ratio_max, ksclose
+    )
+    return [blurred, thresh, closed, output, n_segments]
 
 
 # Gradio App Using Blocks
@@ -148,7 +152,7 @@ with gr.Blocks() as app:
         with gr.Column(scale=1):
             blurred_output = gr.Image(label="Blurred Image")
         with gr.Column(scale=1):
-            threshold_output = gr.Image(label="Mask Image")
+            threshold_output = gr.Image(label="Adaptive threshold")
 
     # Step 3: Contour Detection
     with gr.Row():
@@ -163,10 +167,12 @@ with gr.Blocks() as app:
                 0.1, 5.0, step=0.1, value=0.6, label="Max Aspect Ratio (aspect_ratio_max)"
             )
         with gr.Column(scale=1):
-            mask_image = gr.Image(label="Mask Image")
+            mask_image = gr.Image(label="Contour Mask")
         with gr.Column(scale=1):
-            contour_output = gr.Image(label="Contours Image")
+            contour_output = gr.Image(label="Segments")
     with gr.Row():
+        with gr.Column(scale=1):
+            n_segments_text = gr.Textbox(label="Number of Segments", value="0")
         with gr.Column(scale=1):
             prepare_button = gr.Button("Prepare Images")
         with gr.Column(scale=1):
@@ -185,7 +191,7 @@ with gr.Blocks() as app:
             aspect_ratio_max_slider,
             ksclose_slider,
         ],
-        "outputs": [blurred_output, threshold_output, mask_image, contour_output],
+        "outputs": [blurred_output, threshold_output, mask_image, contour_output, n_segments_text],
     }
 
     process_steps_args = {
@@ -200,7 +206,7 @@ with gr.Blocks() as app:
             aspect_ratio_max_slider,
             ksclose_slider,
         ],
-        "outputs": [blurred_output, threshold_output, mask_image, contour_output],
+        "outputs": [blurred_output, threshold_output, mask_image, contour_output, n_segments_text],
     }
 
     # Bind Functions to UI
